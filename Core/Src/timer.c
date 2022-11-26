@@ -1,39 +1,43 @@
 /*
  * timer.c
  *
- *  Created on: Oct 29, 2022
+ *  Created on: Sep 24, 2022
  *      Author: PC
  */
 
-#include "timer.h"
-#include "main.h"
-#include "input_processing.h"
-#include "input_reading.h"
-int timer1_flag = 0;
-int timer1_counter = 0;
 
-void setTimer1(int duration)
+#include"timer.h"
+
+int timer_counter[TIMER_COUNT] = {0};
+int timer_flag[TIMER_COUNT] = {0};
+int timer_delay[TIMER_COUNT] = {100};
+void setAllTimer(int duration)
 {
-	timer1_counter = duration;
-	timer1_flag = 0;
+	for(int i = 0; i < TIMER_COUNT; i++) setTimer(duration, i);
+}
+
+void setTimer(int duration, int index)
+{
+	timer_flag[index] = 0;
+	timer_counter[index] = duration;
 }
 
 void timerRun()
 {
-	if(timer1_counter > 0)
+	for(int i = 0; i < TIMER_COUNT; i++){
+	if(timer_counter[i] > 0)
 	{
-		timer1_counter--;
-		if(timer1_counter <= 0)
+		timer_counter[i]--;
+		if(timer_counter[i] <= 0)
 		{
-			timer1_flag = 1;
+			timer_flag[i] = 1;
 		}
+	}
 	}
 }
 
-void HAL_TIM_PeriodElapsedCallback ( TIM_HandleTypeDef * htim )
+void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef * htim)
 {
-	if(htim->Instance == TIM2)
-	{
-		button_reading();
-	}
+	timerRun();
+	getKeyInput();
 }
